@@ -35,10 +35,10 @@ __meta__ = {
 }
 
 [node name="title" type="Label" parent="."]
-margin_left = 393.514
-margin_top = 162.774
-margin_right = 613.514
-margin_bottom = 202.774
+margin_left = 393.61
+margin_top = 162.802
+margin_right = 613.61
+margin_bottom = 202.802
 size_flags_horizontal = 2
 size_flags_vertical = 0
 theme = ExtResource( 2 )
@@ -136,13 +136,13 @@ __meta__ = {
 }
 
 [node name="name" type="LineEdit" parent="characterselect"]
-margin_left = 6.0
-margin_top = 56.0
-margin_right = 125.0
-margin_bottom = 80.0
+margin_left = 6.24699
+margin_top = 56.555
+margin_right = 125.247
+margin_bottom = 80.555
 size_flags_horizontal = 2
 size_flags_vertical = 2
-text = "Greg"
+text = "Chain"
 placeholder_text = "Display Name"
 __meta__ = {
 "_edit_use_anchors_": false

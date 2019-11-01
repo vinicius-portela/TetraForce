@@ -4,8 +4,8 @@ var selected = 0
 var player_name: String = ""
 
 var options = {
-	"guy": "res://player/player.png",
-	"gal": "res://player/player2.png",
+	"Chain": "res://player/player.png",
+	"Knot": "res://player/player2.png",
 }
 
 func _ready():
@@ -15,6 +15,7 @@ func _ready():
 func update_skin():
 	$preview.texture = load(options.values()[selected])
 	network.my_player_data.skin = options.values()[selected]
+	$name.text = options.keys()[selected]
 
 func back_pressed():
 	selected = wrapi(selected - 1, 0, options.size())
