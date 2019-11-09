@@ -3,8 +3,7 @@ extends Control
 
 const DEFAULT_PORT = 4564 # some random number, pick your port properly
 
-var map = "res://maps/overworld.tmx"
-onready var host = settings.get_pref("host_address")
+var map = "res://maps/overworld.tscn"
 
 #### Network callbacks from SceneTree ####
 
@@ -29,6 +28,7 @@ func _connected_ok():
 	
 # callback from SceneTree, only for clients (not server)	
 func _connected_fail():
+
 	_set_status("Couldn't connect",false)
 	
 	get_tree().set_network_peer(null) #remove peer
@@ -42,8 +42,9 @@ func _server_disconnected():
 ##### Game creation functions ######
 
 func _end_game(with_error=""):
-	network.clear() # handle clearing out the network immediately (this is why we connected deferred above)
-	show()
+	if (has_node("/root/game")):
+		get_node("/root/game").free() # erase immediately, otherwise network might show errors (this is why we connected deferred above)
+		show()
 	
 	get_tree().set_network_peer(null) #remove peer
 	
@@ -63,25 +64,8 @@ func _set_status(text,isok):
 		get_node("panel/status_ok").set_text("")
 		get_node("panel/status_fail").set_text(text)
 
-func check_host_address(ip: String) -> String:
-	if ip.length() == 0:
-		ip = settings.default_host
-	
-	if (not ip.is_valid_ip_address()):
-		_set_status("IP address is invalid",false)
-		return ""
-	
-	settings.set_pref("host_address", ip)
-	
-	return ip
-
 func _on_host_pressed():
-	network.my_player_data.name = $characterselect.player_name
-	
-	var ip = get_node("panel/address").get_text()
-	
-	if ip.length() == 0:
-		ip = settings.default_host
+	network.my_player_data.name = $characterselect/name.text
 	
 	var host = NetworkedMultiplayerENet.new()
 	host.set_compression_mode(NetworkedMultiplayerENet.COMPRESS_RANGE_CODER)
@@ -98,11 +82,11 @@ func _on_host_pressed():
 	create_level()
 
 func _on_join_pressed():
-	network.my_player_data.name = $characterselect.player_name
+	network.my_player_data.name = $characterselect/name.text
 	
-	var ip = check_host_address(get_node("panel/address").get_text())
-	
-	if ip == null:
+	var ip = get_node("panel/address").get_text()
+	if (not ip.is_valid_ip_address()):
+		_set_status("IP address is invalid",false)
 		return
 	
 	var host = NetworkedMultiplayerENet.new()
@@ -115,10 +99,6 @@ func _on_join_pressed():
 ### INITIALIZER ####
 	
 func _ready():
-	$panel.grab_focus()
-	
-	$panel/address.text = host
-	
 	# connect all the callbacks related to networking
 	get_tree().connect("network_peer_connected",self,"_player_connected")
 	get_tree().connect("connected_to_server",self,"_connected_ok")

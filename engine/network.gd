@@ -16,8 +16,6 @@ var my_player_data = {
 
 var clock
 
-var rooms = {} #{Vector2: Room}
-
 func _ready():
 	set_process(false)
 	get_tree().connect("network_peer_connected", self, "_player_connected")
@@ -56,17 +54,6 @@ func get_player_name(player_name, collision_count):
 		return player_name
 	else:
 		return player_name + "%d" % collision_count
-	
-func clear():
-	if is_instance_valid(current_map):
-		current_map.free()
-	if is_instance_valid(clock):
-		clock.stop()
-	active_maps.clear()
-	current_players.clear()
-	map_owners.clear()
-	map_peers.clear()
-	player_data.clear()
 
 func check_dupe_name(player_name):
 	for value in player_data.values():
@@ -145,84 +132,3 @@ func _player_disconnected(id):
 	if get_tree().is_network_server():
 		active_maps.erase(id)
 	update_maps()
-
-class Room :
-	
-	#var map 
-	var tile_rect = Rect2(0, 0, 16, 9)
-	var entities = []
-	var enemies = {}
-	var players = {}
-	
-	signal player_entered()
-	signal first_player_entered()
-	signal player_exited()
-	signal last_player_exited()
-	signal enemies_defeated()
-	signal empty()
-	
-	func add_entity(entity):
-		entities.append(entity)
-		
-		if entity.get("TYPE") == "ENEMY":
-			enemies[entity.get_instance_id()] = true
-		
-		if entity.get("TYPE") == "PLAYER":
-			if players.size() == 0:
-				emit_signal("first_player_entered")
-			players[entity.get_instance_id()] = true
-			emit_signal("player_entered")
-
-	func remove_entity(entity):
-		entities.erase(entity)
-		
-		if entity.get("TYPE") == "ENEMY":
-			enemies.erase(entity.get_instance_id())
-			
-			if enemies.empty():
-				emit_signal("enemies_defeated")
-		
-		if entity.get("TYPE") == "PLAYER":
-			players.erase(entity.get_instance_id())
-			if players.size() == 0:
-				emit_signal("last_player_exited")
-			emit_signal("player_exited")
-		
-		if entities.empty():
-			emit_signal("empty")
-	
-
-func get_room_screen(pos: Vector2) -> Vector2:
-	return Vector2(floor(pos.x / 16 / 16), floor(pos.y / 9 / 16))
-
-func get_room(pos) -> Room :
-	var screen = get_room_screen(pos)
-	if rooms.has(screen) :
-		return rooms[screen]
-		
-	else :
-		# create room
-		var r = Room.new()
-		r.tile_rect.position = screen * Vector2(16, 9)
-		
-		r.connect("player_entered", self, "_on_room_player_entered", [r])
-		r.connect("player_exited", self, "_on_room_player_exited", [r])
-		r.connect("enemies_defeated", self, "_on_room_enemies_defeated", [r])
-		r.connect("empty", self, "_on_room_empty", [r])
-		
-		rooms[screen] = r
-		return r
-
-func _on_room_player_entered(room):
-	print(room, "player_entered")
-
-func _on_room_player_exited(room):
-	print(room, "player_exited")
-
-func _on_room_enemies_defeated(room):
-	print(room, "enemies_defeated")
-
-func _on_room_empty(room):
-	# free the room once it's clear
-	print(room.get_class())
-	rooms.erase(room)

@@ -1,4 +1,5 @@
 shader_type canvas_item;
+render_mode unshaded;
 
 uniform bool is_hurt = false;
 uniform bool custom_colors = false;

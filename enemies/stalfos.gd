@@ -1,4 +1,4 @@
-extends Enemy
+extends Entity
 
 var movetimer_length = 15
 var movetimer = 0
@@ -10,7 +10,7 @@ func _ready():
 	movedir = entity_helper.rand_direction()
 
 func _physics_process(delta):
-	if !is_scene_owner() || is_dead():
+	if !is_scene_owner():
 		return
 	
 	loop_movement()

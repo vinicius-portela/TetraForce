@@ -1,4 +1,3 @@
-tool
 extends StaticBody2D
 
 export(String, MULTILINE) var text = ""
